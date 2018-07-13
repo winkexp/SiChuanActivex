@@ -1,0 +1,95 @@
+// GYHMeter.idl : ActiveX 控件项目的类型库源。
+
+// 此文件将由 MIDL 编译器工具处理以
+// 产生类型库(GYHMeter.tlb)，该类型库将成为
+// GYHMeter.ocx.
+
+#include <olectl.h>
+#include <idispids.h>
+
+[ uuid(0109392B-5F40-4D49-B767-A4FCC9E30B7C), version(1.0),
+  control ]
+library GYHMeterLib
+{
+	importlib(STDOLE_TLB);
+
+	//  CGYHMeterCtrl 的主调度接口
+	[ 
+		uuid(935E56A4-90EC-44F9-8E4D-1BA7CE2560F8)	
+	]
+	dispinterface _DGYHMeter
+	{
+		properties:
+		methods:
+
+			[id(DISPID_ABOUTBOX)] void AboutBox();
+			[id(1)] LONG SS_CMR_OpenAB(LONG iCamNo, LONG mainX, LONG mainY, LONG mwidth, LONG mheight, LONG sideX, LONG sideY, LONG widthside, LONG heightside);
+			[id(2)] LONG SS_CMR_CloseAB(LONG iCamNo);
+			[id(3)] LONG SS_CMR_OpenSideAB(LONG iCamNoSide);
+			[id(4)] LONG SS_CMR_CloseSideAB(LONG iCamNoSide);
+			[id(5)] BSTR SS_CMR_GetStatusAB(LONG iCamNo);
+			[id(6)] LONG SS_CMR_PhotoAB(LONG iCamNo, BSTR fileAddr);
+			[id(7)] LONG SS_CMR_ZoomInAB(LONG iCamNo);
+			[id(8)] LONG SS_CMR_ZoomOutAB(LONG iCamNo);
+			[id(9)] LONG SS_CMR_RotateLeftAB(LONG iCamNo);
+			[id(10)] LONG SS_CMR_RotateRight(LONG iCamNo);
+			[id(11)] LONG SS_CMR_VideoStartAB(LONG iCamNo, BSTR fileAddr);
+			[id(12)] LONG SS_CMR_VideoStopAB(LONG iCamNo, BSTR fileAddr);
+			[id(13)] LONG SS_CMR_StartTimerCapAB(LONG iCamNo, LONG nTime, BSTR pImagePath);
+			[id(14)] LONG SS_CMR_StopTimerCapAB(LONG iCamNo);
+			[id(15)] LONG SS_CMR_ShowVideoPropAB(LONG iCamNo);
+			[id(16)] LONG SS_CMR_ParaSetAB(LONG iCamNo);
+			[id(17)] LONG SS_CMR_SetCutModeAB(LONG iCamNo, LONG CutMode);
+			[id(18)] LONG SS_CMR_WaterMarkAddAB(LONG iCamNo);
+			[id(19)] LONG SS_CMR_WaterMarkSet(LONG iCamNo);
+			[id(20)] BSTR SS_Base64StringAB(LONG iCamNo);
+			[id(21)] BSTR SS_CMR_ReadBarcodeAB(LONG iCamNo);
+			[id(22)] BSTR iReadCardBas(LONG iType);
+			[id(23)] BSTR iReadCard(LONG iType, LONG iAuthType, BSTR pCardInfo, BSTR pFileAddr);
+			[id(24)] BSTR iWriteCard(LONG iType, BSTR pCardInfo, BSTR pFileAddr, BSTR pWriteData);
+			[id(25)] BSTR iVerifyPIN(LONG iType);
+			[id(26)] BSTR iChangePIN(LONG iType);
+			[id(27)] BSTR iReloadPIN(LONG iType, BSTR pCardInfo);
+			[id(28)] BSTR iUnblockPIN(LONG iType, BSTR pCardInfo);
+			[id(29)] BSTR iDoDebit(LONG iType, BSTR pCardInfo, BSTR pPayInfo);
+			[id(30)] BSTR iReadDebitRecord(LONG iType);
+			[id(31)] BSTR iReadCardBas_HSM_Step1(LONG iType);
+			[id(32)] BSTR iReadCardBas_HSM_Step2(BSTR pKey);
+			[id(33)] BSTR iReadCard_HSM_Step1(LONG iType, BSTR pCardInfo, BSTR pFileAddr);
+			[id(34)] BSTR iReadCard_HSM_Step2(BSTR pKey);
+			[id(35)] BSTR iWriteCard_HSM_Step1(LONG iType, BSTR pCardInfo, BSTR pFileAddr);
+			[id(36)] BSTR iWriteCard_HSM_Step2(BSTR pKey, BSTR pWriteData);
+			[id(37)] BSTR iReloadPIN_HSM_Step1(LONG iType, BSTR pCardInfo);
+			[id(38)] BSTR iReloadPIN_HSM_Step2(BSTR pKey);
+			[id(39)] BSTR iReloadPIN_HSM_Step3(BSTR pKey);
+			[id(40)] BSTR iUnblockPIN_HSM_Step1(LONG iType, BSTR pCardInfo);
+			[id(41)] BSTR iUnblockPIN_HSM_Step2(BSTR pKey);
+			[id(42)] BSTR iUnblockPIN_HSM_Step3(BSTR pKey);
+			[id(43)] BSTR iDoDebit_HSM_Step1(LONG iType, BSTR pCardInfo, BSTR pPayInfo);
+			[id(44)] BSTR iDoDebit_HSM_Step2(BSTR pKey);
+	};
+
+	//  CGYHMeterCtrl 的事件调度接口
+
+	[ 
+		uuid(CBC48A8E-86F4-45B5-ADD3-CAD451A5A461)	
+	]
+	dispinterface _DGYHMeterEvents
+	{
+		properties:
+			//  事件接口没有任何属性
+
+		methods:
+	};
+
+	//  CGYHMeterCtrl 的类信息
+	[
+		uuid(7EE63763-4324-4A8B-B489-2511291E40E3)
+	]
+	coclass GYHMeter
+	{
+		[default] dispinterface _DGYHMeter;
+		[default, source] dispinterface _DGYHMeterEvents;
+	};
+
+};

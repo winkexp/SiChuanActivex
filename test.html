@@ -1,0 +1,221 @@
+﻿<object id="show" classid="clsid:7EE63763-4324-4A8B-B489-2511291E40E3" width="600" height="400" charset="utf-8">
+</object>
+<br/>
+<input type="button" value="打开主摄像头" name="B" onClick="OpenAB()">
+<input type="button" value="关闭主摄像头" name="B" onClick="CloseAB()">
+<input type="button" value="打开副摄像头" name="B" onClick="OpenSideAB()">
+<input type="button" value="关闭副摄像头" name="B" onClick="CloseSideAB()">
+<input type="button" value="获取摄像头状态" name="B" onClick="GetStatusAB()">
+<input type="button" value="拍照" name="B" onClick="PhotoAB()">
+<input type="button" value="放大" name="B" onClick="ZoomInAB()">
+<input type="button" value="缩小" name="B" onClick="ZoomOutAB()">
+<input type="button" value="左旋" name="B" onClick="RotateLeftAB()">
+<input type="button" value="右旋" name="B" onClick="RotateRight()">
+<input type="button" value="开始录像" name="B" onClick="VideoStartAB()">
+<input type="button" value="停止录像" name="B" onClick="VideoStopAB()">
+<input type="button" value="开始定时抓拍" name="B" onClick="StartTimerCapAB()">
+<input type="button" value="关闭定时抓拍" name="B" onClick="StopTimerCapAB()">
+<input type="button" value="设置视频属性" name="B" onClick="ShowVideoPropAB()">
+<input type="button" value="设置图片属性" name="B" onClick="ParaSetAB()">
+<input type="button" value="设置剪裁模式" name="B" onClick="SetCutModeAB()">
+<input type="button" value="添加水印" name="B" onClick="WaterMarkAddAB()">
+<input type="button" value="取消水印" name="B" onClick="WaterMarkSet()">
+<input type="button" value="返回图片BASE64" name="B" onClick="Base64StringAB()">
+<input type="button" value="条码识别" name="B" onClick="ReadBarcodeAB()">
+<br/>
+<input type="button" value="加密机读基本信息1" name="B" onClick="iReadCardBasHSMStep1()">
+<input type="button" value="加密机读基本信息2" name="B" onClick="iReadCardBasHSMStep2()">
+<input type="button" value="加密机通用读卡1" name="B" onClick="iReadCardHSMStep1()">
+<input type="button" value="加密机通用读卡2" name="B" onClick="iReadCardHSMStep2()">
+<input type="button" value="加密机通用写卡1" name="B" onClick="iWriteCardHSMStep1()">
+<input type="button" value="加密机通用写卡2" name="B" onClick="iWriteCardHSMStep2()">
+<input type="button" value="加密机重置PIN1" name="B" onClick="iReloadPINHSMStep1()">
+<input type="button" value="加密机重置PIN2" name="B" onClick="iReloadPINHSMStep2()">
+<input type="button" value="加密机重置PIN3" name="B" onClick="iReloadPINHSMStep3()">
+<input type="button" value="加密机解锁PIN1" name="B" onClick="iUnblockPINHSMStep1()">
+<input type="button" value="加密机解锁PIN2" name="B" onClick="iUnblockPINHSMStep2()">
+<input type="button" value="加密机解锁PIN3" name="B" onClick="iUnblockPINHSMStep3()">
+
+<script language="javascript" type="">
+
+function OpenAB(){
+    var ret = show.SS_CMR_OpenAB(0, 0, 0, 300, 300, 301, 0, 200, 300);
+	alert(ret);
+}
+
+
+function CloseAB(){
+    var ret = show.SS_CMR_CloseAB(0);
+	alert(ret);
+}
+
+function OpenSideAB(){
+    var ret = show.SS_CMR_OpenSideAB(1);
+	alert(ret);
+}
+
+
+function CloseSideAB(){
+    var ret = show.SS_CMR_CloseSideAB(1);
+	alert(ret);
+}
+
+function GetStatusAB(){
+    var ret = show.SS_CMR_GetStatusAB(0);
+	alert(ret);
+}
+
+
+function PhotoAB(){
+    var ret = show.SS_CMR_PhotoAB(0, "G://1.jpg");
+	alert(ret);
+}
+
+function ZoomInAB(){
+    var ret = show.SS_CMR_ZoomInAB(1);
+	alert(ret);
+}
+
+
+function ZoomOutAB(){
+    var ret = show.SS_CMR_ZoomOutAB(1);
+	alert(ret);
+}
+
+function RotateLeftAB(){
+    var ret = show.SS_CMR_RotateLeftAB(0);
+	alert(ret);
+}
+
+
+function RotateRight(){
+    var ret = show.SS_CMR_RotateRight(0);
+	alert(ret);
+}
+
+function VideoStartAB(){
+    var ret = show.SS_CMR_VideoStartAB(1, "G://1.avi");
+	alert(ret);
+}
+
+
+function VideoStopAB(){
+    var ret = show.SS_CMR_VideoStopAB(1, "G://1.avi");
+	alert(ret);
+}
+
+function StartTimerCapAB(){
+    var ret = show.SS_CMR_StartTimerCapAB(0, 3, "G:\\");
+	alert(ret);
+}
+
+
+function StopTimerCapAB(){
+    var ret = show.SS_CMR_StopTimerCapAB(0);
+	alert(ret);
+}
+
+function ShowVideoPropAB(){
+    var ret = show.SS_CMR_ShowVideoPropAB(0);
+	alert(ret);
+}
+
+function ParaSetAB(){
+    var ret = show.SS_CMR_ParaSetAB(1);
+	alert(ret);
+}
+
+
+function SetCutModeAB(){
+    var ret = show.SS_CMR_SetCutModeAB(1, 3);
+	alert(ret);
+}
+
+function WaterMarkAddAB(){
+    var ret = show.SS_CMR_WaterMarkAddAB(0);
+	alert(ret);
+}
+
+
+function WaterMarkSet(){
+    var ret = show.SS_CMR_WaterMarkSet(0);
+	alert(ret);
+}
+
+function Base64StringAB(){
+    var ret = show.SS_Base64StringAB(1);
+	alert(ret);
+}
+
+
+function ReadBarcodeAB(){
+    var ret = show.SS_CMR_ReadBarcodeAB(1);
+	alert(ret);
+}
+
+function iReadCardBasHSMStep1(){
+	var ret = show.iReadCardBas_HSM_Step1(1);
+	alert(ret);
+}
+
+function iReadCardBasHSMStep2(){	
+	var ret = show.iReadCardBas_HSM_Step2("key");
+	alert(ret);
+}
+
+
+function iReadCardHSMStep1(){
+	  var ret = show.iReadCard_HSM_Step1(1, "卡识别码|卡号|", "DF01EF0A|37|$");
+	alert(ret);
+}
+
+function iReadCardHSMStep2(){
+	  var ret = show.iReadCard_HSM_Step2("key");
+	alert(ret);
+}
+
+
+function iWriteCardHSMStep1(){
+	  var ret = show.iWriteCard_HSM_Step1(1, "卡识别码|卡号|", "DF01EF0A|37|$");
+	alert(ret);
+}
+
+function iWriteCardHSMStep2(){
+	  var ret = show.iWriteCard_HSM_Step2("key", "writeData");
+	alert(ret);
+}
+
+
+function iReloadPINHSMStep1(){
+	  var ret = show.iReloadPIN_HSM_Step1(1, "卡识别码|卡号|");
+	alert(ret);
+}
+
+function iReloadPINHSMStep2(){
+	  var ret = show.iReloadPIN_HSM_Step2("key");
+	alert(ret);
+}
+
+function iReloadPINHSMStep3(){
+	  var ret = show.iReloadPIN_HSM_Step3("key");
+	alert(ret);
+}
+
+function iUnblockPINHSMStep1(){
+	  var ret = show.iUnblockPIN_HSM_Step1(1, "卡识别码|卡号|");
+	alert(ret);
+}
+
+
+function iUnblockPINHSMStep2(){
+	  var ret = show.iUnblockPIN_HSM_Step2("key");
+	alert(ret);
+}
+
+function iUnblockPINHSMStep3(){
+	  var ret = show.iUnblockPIN_HSM_Step3("key");
+	alert(ret);
+}
+
+</script>
+
