@@ -38,4 +38,4 @@
 
 #include "ZZLibrary.h"
 #include <afxcontrolbars.h>
-#pragma comment(lib, "./lib/ZZLibrary.lib")
+#pragma comment(lib, "ZZLibrary.lib")

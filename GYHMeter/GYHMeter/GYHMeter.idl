@@ -67,6 +67,8 @@ library GYHMeterLib
 			[id(42)] BSTR iUnblockPIN_HSM_Step3(BSTR pKey);
 			[id(43)] BSTR iDoDebit_HSM_Step1(LONG iType, BSTR pCardInfo, BSTR pPayInfo);
 			[id(44)] BSTR iDoDebit_HSM_Step2(BSTR pKey);
+			[id(45)] BSTR iReadICCardNum(void);
+			[id(46)] BSTR iReadIdentityCard(void);
 	};
 
 	//  CGYHMeterCtrl 的事件调度接口

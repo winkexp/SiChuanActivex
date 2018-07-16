@@ -3,5 +3,10 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <WebBrowserDebuggerHttpUrl>C:\Users\Administrator\Desktop\test.html</WebBrowserDebuggerHttpUrl>
     <DebuggerFlavor>WebBrowserDebugger</DebuggerFlavor>
+    <LocalDebuggerCommand>F:\Program Files (x86)\Microsoft Visual Studio 10.0\Samples\1033\C++\MFC\ole\TstCon\Debug\TstCon.exe</LocalDebuggerCommand>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LocalDebuggerCommand>F:\Program Files (x86)\Microsoft Visual Studio 10.0\Samples\1033\C++\MFC\ole\TstCon\Debug\TstCon.exe</LocalDebuggerCommand>
+    <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
 </Project>

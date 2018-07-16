@@ -2,6 +2,8 @@
 
 // GYHMeterCtrl.h : CGYHMeterCtrl ActiveX 控件类的声明。
 #include "CameraDlg.h"
+#include "GyReader.h"
+#include "HDKeyboard.h"
 
 // CGYHMeterCtrl : 有关实现的信息，请参阅 GYHMeterCtrl.cpp。
 
@@ -42,6 +44,8 @@ protected:
 // 调度和事件 ID
 public:
 	enum {
+		dispidiReadIdentityCard = 46L,
+		dispidiReadICCardNum = 45L,
 		dispidiDoDebit_HSM_Step2 = 44L,
 		dispidiDoDebit_HSM_Step1 = 43L,
 		dispidiUnblockPIN_HSM_Step3 = 42L,
@@ -144,7 +148,18 @@ protected:
 	CCameraDlg subDlg;
 	HWND subHwnd;
 	BOOL subOpen;
+
+	VOID (*fIdCard)(ULONG_PTR);
+
+	GyReader* reader;
+	HANDLE devNo;
+	HDKeyboard keyboard;
+	CString flag;//算法标示
+	CString outStr;
 public:
 //	afx_msg void OnPaint();
+protected:
+	BSTR iReadICCardNum(void);
+	BSTR iReadIdentityCard(void);
 };
 

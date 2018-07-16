@@ -3,8 +3,8 @@
 
 MwReader::MwReader(void)
 {
-	LoadDll();
 	hmodle = NULL;
+	LoadDll();	
 }
 
 MwReader::~MwReader(void)
@@ -29,9 +29,9 @@ BOOL MwReader::LoadDll()
 	strPath = strPath.Mid(0, index + 1);
 	SetCurrentDirectory(strPath);
 
-	if ((hmodle = GetModuleHandle(_T("./lib/mwCardReader.dll"))) == NULL)
+	if ((hmodle = GetModuleHandle(_T("mwCardReader.dll"))) == NULL)
 	{
-		hmodle = LoadLibrary(_T("./lib/mwCardReader.dll"));
+		hmodle = LoadLibrary(_T("mwCardReader.dll"));
 	}
 
 	if (hmodle == NULL || hmodle == INVALID_HANDLE_VALUE)

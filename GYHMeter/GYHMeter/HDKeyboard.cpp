@@ -3,10 +3,20 @@
 
 HDKeyboard::HDKeyboard(void)
 {
+	hmodle = NULL;
+	LoadDll();
 }
 
 HDKeyboard::~HDKeyboard(void)
 {
+	if (hmodle)
+	{
+		FreeLibrary(hmodle);
+		hmodle = NULL;
+	}
+	ICC_Reader_Open = NULL;
+	ICC_GetInputPass = NULL;
+	ICC_Reader_Close = NULL;
 }
 
 BOOL HDKeyboard::LoadDll()
@@ -18,10 +28,9 @@ BOOL HDKeyboard::LoadDll()
 	int index = strPath.ReverseFind('\\');
 	strPath = strPath.Mid(0, index + 1);
 	SetCurrentDirectory(strPath);
-
-	if ((hmodle = GetModuleHandle(_T("./lib/HD_KeyBoard.dll"))) == NULL)
+	if ((hmodle = GetModuleHandle(_T("HD_KeyBoard.dll"))) == NULL)
 	{
-		hmodle = LoadLibrary(_T("./lib/HD_KeyBoard.dll"));
+		hmodle = LoadLibrary(_T("HD_KeyBoard.dll"));
 	}
 
 	if (hmodle == NULL || hmodle == INVALID_HANDLE_VALUE)

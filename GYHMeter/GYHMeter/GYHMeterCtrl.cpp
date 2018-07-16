@@ -145,6 +145,8 @@ BEGIN_DISPATCH_MAP(CGYHMeterCtrl, COleControl)
 	DISP_FUNCTION_ID(CGYHMeterCtrl, "iUnblockPIN_HSM_Step3", dispidiUnblockPIN_HSM_Step3, iUnblockPIN_HSM_Step3, VT_BSTR, VTS_BSTR)
 	DISP_FUNCTION_ID(CGYHMeterCtrl, "iDoDebit_HSM_Step1", dispidiDoDebit_HSM_Step1, iDoDebit_HSM_Step1, VT_BSTR, VTS_I4 VTS_BSTR VTS_BSTR)
 	DISP_FUNCTION_ID(CGYHMeterCtrl, "iDoDebit_HSM_Step2", dispidiDoDebit_HSM_Step2, iDoDebit_HSM_Step2, VT_BSTR, VTS_BSTR)
+	DISP_FUNCTION_ID(CGYHMeterCtrl, "iReadICCardNum", dispidiReadICCardNum, iReadICCardNum, VT_BSTR, VTS_NONE)
+	DISP_FUNCTION_ID(CGYHMeterCtrl, "iReadIdentityCard", dispidiReadIdentityCard, iReadIdentityCard, VT_BSTR, VTS_NONE)
 END_DISPATCH_MAP()
 
 
@@ -243,6 +245,9 @@ CGYHMeterCtrl::CGYHMeterCtrl()
 	//subDlg = NULL;
 	subHwnd = NULL;
 	subOpen = FALSE;
+
+	devNo = NULL;
+	reader = new MwReader();
 }
 
 
@@ -842,37 +847,40 @@ BSTR CGYHMeterCtrl::SS_CMR_ReadBarcodeAB(LONG iCamNo)
 void WriteLogStr(CString log, int lastErr=0)
 {
 	USES_CONVERSION;
+
+	HINSTANCE hOcx = ::GetModuleHandle(L"GYHMeter.ocx"); 
+	CString strPath; 
+	::GetModuleFileNameW(hOcx, strPath.GetBufferSetLength(MAX_PATH + 1), MAX_PATH);
+	strPath.ReleaseBuffer();
+	int index = strPath.ReverseFind('\\');
+	strPath = strPath.Mid(0, index + 1);
+	SetCurrentDirectory(strPath);
+
 	SYSTEMTIME  sysTime;
-	GetSystemTime(&sysTime);
+	//GetSystemTime(&sysTime);
+	GetLocalTime(&sysTime);
 
 	char ctime[64]; memset(ctime, 0, 64);
 
-	sprintf(ctime, (("%02dH-%02dM-%02dS-%03dMs")), sysTime.wHour, sysTime.wMinute, sysTime.wSecond, sysTime.wMilliseconds);
+	sprintf(ctime, (("%02d:%02d:%02d:%03d")), sysTime.wHour, sysTime.wMinute, sysTime.wSecond, sysTime.wMilliseconds);
 
 	CString  curTime = CString(ctime);
 
 	memset(ctime, 0, 64);
 	sprintf(ctime, (("%04d-%02d-%02d")), sysTime.wYear, sysTime.wMonth, sysTime.wDay);
 
-	CString  fileName = CString(ctime);;
-	fileName = CString(CString(_T("D:\\"))) + fileName + CString(CString(_T(".log")));
+	CString  fileName;
+	fileName.Format(L"%s.log", A2T(ctime));
 
-	FILE* hfile = NULL;
-	//hfile = fopen(fileName.GetBuffer(0),CString(_T("at+,ccs=UTF-8")));
+	FILE* hfile = NULL;	
 	hfile = fopen(T2A(fileName), "at+");
 	if (hfile)
 	{
 		fseek(hfile, 0, SEEK_END);
-		fprintf(hfile, ("%s: %s\n"), curTime, log);
+		fprintf(hfile, ("%s: %s\n"), T2A(curTime), T2A(log));
 		fclose(hfile);
 	}
 }
-
-GyReader* reader = new MwReader();
-HANDLE devNo = NULL;
-HDKeyboard keyboard;
-CString flag;//算法标示
-CString outStr;
 
 BSTR CGYHMeterCtrl::iReadCardBas(LONG iType)
 {
@@ -1045,16 +1053,50 @@ BSTR CGYHMeterCtrl::iVerifyPIN(LONG iType)
 	}
 	//获取第一次输入密码
 	int readerHandle = keyboard.Keyboard_Open("USB1");
+	if (readerHandle <= 0)
+	{
+		outStr = L"打开密码键盘失败";
+		WriteLogStr(outStr);
+		ret = reader->CloseReader(devNo);
+		devNo = NULL;
+		return outStr.AllocSysString();
+	}
 	unsigned char len = 0;
 	unsigned char firstKey[16] = {0};
-	keyboard.GetInputPass(readerHandle, 15, &len, 1, 0, firstKey);
+	ret = keyboard.GetInputPass(readerHandle, 15, &len, 1, 0, firstKey);
+	if (ret != 0)
+	{
+		outStr = L"获取密码失败";
+		WriteLogStr(outStr);
+		ret = reader->CloseReader(devNo);
+		devNo = NULL;
+		keyboard.Keyboard_Close(readerHandle);
+		return outStr.AllocSysString();
+	}
 	keyboard.Keyboard_Close(readerHandle);
 
 	//获取第二次输入密码
 	readerHandle = keyboard.Keyboard_Open("USB1");
+	if (readerHandle <= 0)
+	{
+		outStr = L"打开密码键盘失败";
+		WriteLogStr(outStr);
+		ret = reader->CloseReader(devNo);
+		devNo = NULL;
+		return outStr.AllocSysString();
+	}
 	len = 0;
 	unsigned char secondKey[16] = {0};
-	keyboard.GetInputPass(readerHandle, 15, &len, 1, 0, secondKey);
+	ret = keyboard.GetInputPass(readerHandle, 15, &len, 1, 0, secondKey);
+	if (ret != 0)
+	{
+		outStr = L"获取密码失败";
+		WriteLogStr(outStr);
+		ret = reader->CloseReader(devNo);
+		devNo = NULL;
+		keyboard.Keyboard_Close(readerHandle);
+		return outStr.AllocSysString();
+	}
 	keyboard.Keyboard_Close(readerHandle);
 
 	if (strcmp((const char*)firstKey, (const char*)secondKey) != 0)
@@ -1138,23 +1180,74 @@ BSTR CGYHMeterCtrl::iChangePIN(LONG iType)
 
 	//获取旧密码
 	int oldHandle = keyboard.Keyboard_Open("USB1");
+	if (oldHandle <= 0)
+	{
+		outStr = L"打开密码键盘失败";
+		WriteLogStr(outStr);
+		ret = reader->CloseReader(devNo);
+		devNo = NULL;
+		return outStr.AllocSysString();
+	}
 	unsigned char oldLen = 0;
 	unsigned char oldKey[16] = {0};
-	keyboard.GetInputPass(oldHandle, 15, &oldLen, 1, 0, oldKey);
+	ret = keyboard.GetInputPass(oldHandle, 15, &oldLen, 1, 0, oldKey);
+	if (ret != 0)
+	{
+		outStr = L"获取密码失败";
+		WriteLogStr(outStr);
+		ret = reader->CloseReader(devNo);
+		devNo = NULL;
+		keyboard.Keyboard_Close(oldHandle);
+		return outStr.AllocSysString();
+	}
 	keyboard.Keyboard_Close(oldHandle);
 
 	//获取第一次输入密码
 	int readerHandle = keyboard.Keyboard_Open("USB1");
+	if (readerHandle <= 0)
+	{
+		outStr = L"打开密码键盘失败";
+		WriteLogStr(outStr);
+		ret = reader->CloseReader(devNo);
+		devNo = NULL;
+		return outStr.AllocSysString();
+	}
 	unsigned char len = 0;
 	unsigned char firstKey[16] = {0};
-	keyboard.GetInputPass(readerHandle, 15, &len, 1, 0, firstKey);
+	ret = keyboard.GetInputPass(readerHandle, 15, &len, 1, 0, firstKey);
+	if (ret != 0)
+	{
+		outStr = L"获取密码失败";
+		WriteLogStr(outStr);
+		ret = reader->CloseReader(devNo);
+		devNo = NULL;
+		keyboard.Keyboard_Close(readerHandle);
+		return outStr.AllocSysString();
+	}
 	keyboard.Keyboard_Close(readerHandle);
 
 	//获取第二次输入密码
 	readerHandle = keyboard.Keyboard_Open("USB1");
+	if (readerHandle <= 0)
+	{
+		outStr = L"打开密码键盘失败";
+		WriteLogStr(outStr);
+		ret = reader->CloseReader(devNo);
+		devNo = NULL;
+		return outStr.AllocSysString();
+	}
 	len = 0;
 	unsigned char secondKey[16] = {0};
-	keyboard.GetInputPass(readerHandle, 15, &len, 1, 0, secondKey);
+	ret = keyboard.GetInputPass(readerHandle, 15, &len, 1, 0, secondKey);
+	if (ret != 0)
+	{
+		outStr = L"获取密码失败";
+		WriteLogStr(outStr);
+		ret = reader->CloseReader(devNo);
+		devNo = NULL;
+		keyboard.Keyboard_Close(readerHandle);
+		return outStr.AllocSysString();
+	}
 	keyboard.Keyboard_Close(readerHandle);
 
 	if (strcmp((const char*)firstKey, (const char*)secondKey) != 0)
@@ -1165,7 +1258,7 @@ BSTR CGYHMeterCtrl::iChangePIN(LONG iType)
 		return outStr.AllocSysString();
 	}
 
-	//校验PIN
+	//修改PIN
 	cmd.Format(L"805E0100%02d%sFF%s", len/2 + 1 + oldLen/2, oldKey, firstKey);
 	memset(respData, 0, sizeof(respData));	
 	ret = reader->ApduCard(devNo, 0, T2A(cmd), cmd.GetLength(), respData);
@@ -2372,7 +2465,7 @@ BSTR CGYHMeterCtrl::iReloadPIN_HSM_Step1(LONG iType, LPCTSTR pCardInfo)
 	if (index == -1)
 	{
 		//根据卡识别码来确定算法环境
-		cmd = CString("00A40002EF05");
+		cmd = CString("00A4000002EF05");
 		ret = reader->ApduCard(devNo, 0, T2A(cmd), cmd.GetLength(), respData);
 		if (ret != 0x9000)
 		{
@@ -2504,16 +2597,50 @@ BSTR CGYHMeterCtrl::iReloadPIN_HSM_Step2(LPCTSTR pKey)
 
 	//获取第一次输入密码
 	int readerHandle = keyboard.Keyboard_Open("USB1");
+	if (readerHandle <= 0)
+	{
+		outStr = L"打开密码键盘失败";
+		WriteLogStr(outStr);
+		ret = reader->CloseReader(devNo);
+		devNo = NULL;
+		return outStr.AllocSysString();
+	}
 	unsigned char len = 0;
 	unsigned char firstKey[16] = {0};
-	keyboard.GetInputPass(readerHandle, 15, &len, 1, 0, firstKey);
+	ret = keyboard.GetInputPass(readerHandle, 15, &len, 1, 0, firstKey);
+	if (ret != 0)
+	{
+		outStr = L"获取密码失败";
+		WriteLogStr(outStr);
+		ret = reader->CloseReader(devNo);
+		devNo = NULL;
+		keyboard.Keyboard_Close(readerHandle);
+		return outStr.AllocSysString();
+	}
 	keyboard.Keyboard_Close(readerHandle);
 
 	//获取第二次输入密码
 	readerHandle = keyboard.Keyboard_Open("USB1");
+	if (readerHandle <= 0)
+	{
+		outStr = L"打开密码键盘失败";
+		WriteLogStr(outStr);
+		ret = reader->CloseReader(devNo);
+		devNo = NULL;
+		return outStr.AllocSysString();
+	}
 	len = 0;
 	unsigned char secondKey[16] = {0};
-	keyboard.GetInputPass(readerHandle, 15, &len, 1, 0, secondKey);
+	ret = keyboard.GetInputPass(readerHandle, 15, &len, 1, 0, secondKey);
+	if (ret != 0)
+	{
+		outStr = L"获取密码失败";
+		WriteLogStr(outStr);
+		ret = reader->CloseReader(devNo);
+		devNo = NULL;
+		keyboard.Keyboard_Close(readerHandle);
+		return outStr.AllocSysString();
+	}
 	keyboard.Keyboard_Close(readerHandle);
 
 	if (strcmp((const char*)firstKey, (const char*)secondKey) != 0)
@@ -2637,7 +2764,7 @@ BSTR CGYHMeterCtrl::iUnblockPIN_HSM_Step1(LONG iType, LPCTSTR pCardInfo)
 	if (index == -1)
 	{
 		//根据卡识别码来确定算法环境
-		cmd = CString("00A40002EF05");
+		cmd = CString("00A4000002EF05");
 		ret = reader->ApduCard(devNo, 0, T2A(cmd), cmd.GetLength(), respData);
 		if (ret != 0x9000)
 		{
@@ -2827,7 +2954,7 @@ BSTR CGYHMeterCtrl::iDoDebit_HSM_Step1(LONG iType, LPCTSTR pCardInfo, LPCTSTR pP
 	CString strResult;
 
 	// TODO: 在此添加调度处理程序代码
-
+	strResult = L"";
 	return strResult.AllocSysString();
 }
 
@@ -2839,8 +2966,68 @@ BSTR CGYHMeterCtrl::iDoDebit_HSM_Step2(LPCTSTR pKey)
 	CString strResult;
 
 	// TODO: 在此添加调度处理程序代码
-
+	strResult = L"";
 	return strResult.AllocSysString();
 }
 
 
+
+
+BSTR CGYHMeterCtrl::iReadICCardNum(void)
+{
+	AFX_MANAGE_STATE(AfxGetStaticModuleState());
+
+	CString strResult;
+
+	// TODO: 在此添加调度处理程序代码
+	strResult = L"";
+	return strResult.AllocSysString();
+}
+
+
+BSTR CGYHMeterCtrl::iReadIdentityCard(void)
+{
+	AFX_MANAGE_STATE(AfxGetStaticModuleState());
+
+	CString strResult;
+
+	// TODO: 在此添加调度处理程序代码
+	BOOL flag = FALSE;
+	ULONG_PTR userdata = 0;	
+	flag = ZZOpenIdCardEx(FALSE, (IdCardCallback)fIdCard, userdata);
+	if (!flag)
+	{		
+		strResult = L"";
+		return strResult.AllocSysString();
+	}
+	flag = ZZReadIdCard();
+	CString xm = ZZGetIdCardResult(1);//姓名
+	CString xb = ZZGetIdCardResult(2);//性别
+	CString mz = ZZGetIdCardResult(3);//民族
+	CString year = ZZGetIdCardResult(4);//出生年
+	CString month = ZZGetIdCardResult(5);//出生月
+	CString day = ZZGetIdCardResult(6);//出生日
+	CString zh = ZZGetIdCardResult(7);//住址
+	CString sfz = ZZGetIdCardResult(8);//身份证
+	CString fzjg = ZZGetIdCardResult(9);//发证机关
+	CString yxqksn = ZZGetIdCardResult(10);//有效期起始年
+	CString yxqksy = ZZGetIdCardResult(11);//有效期起始月
+	CString yxqksr = ZZGetIdCardResult(12);//有效期起始日
+	CString yxqjsn = ZZGetIdCardResult(13);//有效期结束年
+	CString yxqjsy = ZZGetIdCardResult(14);//有效期结束年
+	CString yxqjsr = ZZGetIdCardResult(15);//有效期结束年
+	CString tmp = L"1.jpg";
+	flag = ZZGetIdCardImage(tmp, 2);
+	if (!flag)
+	{		
+		strResult = L"";
+		ZZCloseIdCard();
+		return strResult.AllocSysString();
+	}
+	BSTR baseStr = ZZGetBase64(L"1.jpg");
+	CString lJpg(baseStr);
+	strResult.Format(_T("%s|%s|%s|%s%s%s|%s|%s|%s%s%s|%s%s%s|%s|"), xm, xb, mz, year, month, day, sfz, fzjg, yxqksn, yxqksy, yxqksr, yxqjsn, yxqjsy, yxqjsr, lJpg);
+	ZZCloseIdCard();
+	ZZReleaseString(baseStr);
+	return strResult.AllocSysString();
+}

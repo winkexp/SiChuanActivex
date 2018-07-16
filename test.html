@@ -35,6 +35,16 @@
 <input type="button" value="加密机解锁PIN1" name="B" onClick="iUnblockPINHSMStep1()">
 <input type="button" value="加密机解锁PIN2" name="B" onClick="iUnblockPINHSMStep2()">
 <input type="button" value="加密机解锁PIN3" name="B" onClick="iUnblockPINHSMStep3()">
+<br/>
+<input type="button" value="读基本信息" name="B" onClick="iReadCardBas()">
+<input type="button" value="通用读卡" name="B" onClick="iReadCard()">
+<input type="button" value="通用写卡" name="B" onClick="iWriteCard()">
+<input type="button" value="校验PIN" name="B" onClick="iVerifyPIN()">
+<input type="button" value="修改PIN" name="B" onClick="iChangePIN()">
+<input type="button" value="重置PIN" name="B" onClick="iReloadPIN()">
+<input type="button" value="解锁PIN" name="B" onClick="iUnblockPIN()">
+<input type="button" value="读银行卡号" name="B" onClick="iReadICCardNum()">
+<input type="button" value="读身份信息" name="B" onClick="iReadIdentityCard()">
 
 <script language="javascript" type="">
 
@@ -217,5 +227,54 @@ function iUnblockPINHSMStep3(){
 	alert(ret);
 }
 
+
+
+function iReadCardBas(){
+	  var ret = show.iReadCardBas(1);
+	alert(ret);
+}
+
+function iReadCard(){
+	  var ret = show.iReadCard(1, 1, "卡识别码|卡号|", "DF01EF0A|37|$");
+	alert(ret);
+}
+
+function iWriteCard(){
+	  var ret = show.iWriteCard(1, "卡识别码|卡号|", "DF01EF0A|37|$", "data");
+	alert(ret);
+}
+
+function iVerifyPIN(){
+	  var ret = show.iVerifyPIN(1);
+	alert(ret);
+}
+
+
+function iChangePIN(){
+	  var ret = show.iChangePIN(1);
+	alert(ret);
+}
+
+function iReloadPIN(){
+	  var ret = show.iReloadPIN(1, "卡识别码|卡号|");
+	alert(ret);
+}
+
+
+function iUnblockPIN(){
+	  var ret = show.iUnblockPIN(1, "卡识别码|卡号|");
+	alert(ret);
+}
+
+
+function iReadICCardNum(){
+	  var ret = show.iReadICCardNum();
+	alert(ret);
+}
+
+function iReadIdentityCard(){
+	  var ret = show.iReadIdentityCard();
+	alert(ret);
+}
 </script>
 
